@@ -1,0 +1,528 @@
+name: subagent-spec-driven
+version: 1
+description: OpenSpec workflow with prep artifacts for subagent execution
+
+artifacts:
+  # ============================================
+  # PROPOSAL PHASE
+  # ============================================
+
+  - id: research-proposal-prep
+    generates: ".instructions/research-proposal.md"
+    description: Main agent creates research instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      
+      Write detailed instructions for a subagent to research the codebase for this change.
+      
+      Include:
+      - What to explore (directories, files, patterns)
+      - What patterns to find (similar features, conventions)
+      - Expected output format (file:line references, structured findings)
+      - Specific areas relevant to this change
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `.research/codebase.md`.
+      
+      ## REQUIRED: After Generating `.instructions/research-proposal.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: []
+
+  - id: research-proposal
+    generates: ".research/codebase.md"
+    description: Subagent executes codebase research using prep instructions
+    template: research-proposal.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Focus on file:line references, patterns, architectural decisions
+      4. Return control to main agent - DO NOT proceed to next artifact
+      
+      Write findings to `.research/codebase.md` with:
+      - Codebase structure
+      - Relevant patterns (with file:line references)
+      - Potential conflicts
+      - Similar features (with references)
+      - Conventions to follow
+    requires: [research-proposal-prep]
+
+  - id: research-feasibility-prep
+    generates: ".instructions/research-feasibility.md"
+    description: Main agent creates feasibility analysis instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to assess technical feasibility.
+      
+      Include:
+      - What conflicts to check (based on codebase research)
+      - What dependencies to verify
+      - What risks to assess
+      - Expected output format
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `.research/feasibility.md`.
+      
+      ## REQUIRED: After Generating `.instructions/research-feasibility.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [research-proposal]
+
+  - id: research-feasibility
+    generates: ".research/feasibility.md"
+    description: Subagent executes feasibility analysis using prep instructions
+    template: research-feasibility.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Analyze conflicts, dependencies, risks
+      4. Return control to main agent - DO NOT proceed to next artifact
+      
+      Write findings to `.research/feasibility.md` with:
+      - Feasibility rating (HIGH/MEDIUM/LOW)
+      - Conflicts found (with file:line references)
+      - Missing dependencies
+      - Scope concerns
+      - Technical risks (with severity)
+      - Recommendations
+      - Blocking issues
+    requires: [research-feasibility-prep]
+
+  - id: draft-proposal-prep
+    generates: ".instructions/draft-proposal.md"
+    description: Main agent creates proposal drafting instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to create the proposal document.
+      
+      Include:
+      - Key points from research to incorporate
+      - Specific sections to include
+      - Capabilities to identify (from research findings)
+      - Expected structure and format
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `proposal.md`.
+      
+      ## REQUIRED: After Generating `.instructions/draft-proposal.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [research-proposal, research-feasibility]
+
+  - id: draft-proposal
+    generates: "proposal.md"
+    description: Subagent creates proposal document using prep instructions
+    template: proposal.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Include: Why, What Changes, Capabilities, Impact
+      4. Return control to main agent - DO NOT proceed to next artifact
+      
+      Create the proposal document that establishes WHY this change is needed.
+
+      Sections:
+      - **Why**: 1-2 sentences on the problem or opportunity. What problem does this solve? Why now?
+      - **What Changes**: Bullet list of changes. Be specific about new capabilities, modifications, or removals. Mark breaking changes with **BREAKING**.
+      - **Capabilities**: Identify which specs will be created or modified:
+        - **New Capabilities**: List capabilities being introduced. Each becomes a new `specs/<name>/spec.md`. Use kebab-case names (e.g., `user-auth`, `data-export`).
+        - **Modified Capabilities**: List existing capabilities whose REQUIREMENTS are changing. Only include if spec-level behavior changes (not just implementation details). Each needs a delta spec file. Check `openspec/specs/` for existing spec names. Leave empty if no requirement changes.
+      - **Impact**: Affected code, APIs, dependencies, or systems.
+
+      IMPORTANT: The Capabilities section is critical. It creates the contract between
+      proposal and specs phases. Research existing specs before filling this in.
+      Each capability listed here will need a corresponding spec file.
+
+      Keep it concise (1-2 pages). Focus on the "why" not the "how" -
+      implementation details belong in design.md.
+
+      This is the foundation - specs, design, and tasks all build on this.
+    requires: [draft-proposal-prep]
+
+  # ============================================
+  # SPECS PHASE
+  # ============================================
+
+  - id: research-specs-prep
+    generates: ".instructions/research-specs.md"
+    description: Main agent creates specs research instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to research existing specs and implementations.
+      
+      Include:
+      - What existing specs to examine
+      - What capabilities from proposal to focus on
+      - What implementations to analyze
+      - Expected output format
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `.research/specs.md`.
+      
+      ## REQUIRED: After Generating `.instructions/research-specs.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [draft-proposal]
+
+  - id: research-specs
+    generates: ".research/specs.md"
+    description: Subagent executes specs research using prep instructions
+    template: research-specs.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
+      
+      Write findings to `.research/specs.md` with:
+      - Existing specs (with paths and summaries)
+      - Capabilities from proposal (new/modified)
+      - Current implementations (with file:line references)
+      - Delta analysis
+    requires: [draft-proposal, research-specs-prep]
+
+  - id: draft-specs-prep
+    generates: ".instructions/draft-specs.md"
+    description: Main agent creates specs drafting instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to create specification files.
+      
+      Include:
+      - What capabilities to specify (from proposal)
+      - Delta operations needed (ADDED/MODIFIED/REMOVED)
+      - Format requirements (RFC 2119 keywords, scenario format)
+      - Expected structure
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `specs/**/*.md`.
+      
+      ## REQUIRED: After Generating `.instructions/draft-specs.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [draft-proposal, research-specs]
+
+  - id: draft-specs
+    generates: "specs/**/*.md"
+    description: Subagent creates specification files using prep instructions
+    template: spec.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Use delta format: ADDED/MODIFIED/REMOVED Requirements
+      4. Return control to main agent - DO NOT proceed to next artifact
+      
+      Create specification files that define WHAT the system should do.
+
+      Create one spec file per capability listed in the proposal's Capabilities section.
+      - New capabilities: use the exact kebab-case name from the proposal (specs/<capability>/spec.md).
+      - Modified capabilities: use the existing spec folder name from openspec/specs/<capability>/ when creating the delta spec at specs/<capability>/spec.md.
+
+      Delta operations (use ## headers):
+      - **ADDED Requirements**: New capabilities
+      - **MODIFIED Requirements**: Changed behavior - MUST include full updated content
+      - **REMOVED Requirements**: Deprecated features - MUST include **Reason** and **Migration**
+      - **RENAMED Requirements**: Name changes only - use FROM:/TO: format
+
+      Format requirements:
+      - Each requirement: `### Requirement: <name>` followed by description
+      - Use SHALL/MUST for normative requirements (avoid should/may)
+      - Each scenario: `#### Scenario: <name>` with WHEN/THEN format
+      - **CRITICAL**: Scenarios MUST use exactly 4 hashtags (`####`). Using 3 hashtags or bullets will fail silently.
+      - Every requirement MUST have at least one scenario.
+
+      MODIFIED requirements workflow:
+      1. Locate the existing requirement in openspec/specs/<capability>/spec.md
+      2. Copy the ENTIRE requirement block (from `### Requirement:` through all scenarios)
+      3. Paste under `## MODIFIED Requirements` and edit to reflect new behavior
+      4. Ensure header text matches exactly (whitespace-insensitive)
+
+      Common pitfall: Using MODIFIED with partial content loses detail at archive time.
+      If adding new concerns without changing existing behavior, use ADDED instead.
+
+      Example:
+      ```
+      ## ADDED Requirements
+
+      ### Requirement: User can export data
+      The system SHALL allow users to export their data in CSV format.
+
+      #### Scenario: Successful export
+      - **WHEN** user clicks "Export" button
+      - **THEN** system downloads a CSV file with all user data
+
+      ## REMOVED Requirements
+
+      ### Requirement: Legacy export
+      **Reason**: Replaced by new export system
+      **Migration**: Use new export endpoint at /api/v2/export
+      ```
+
+      Specs should be testable - each scenario is a potential test case.
+    requires: [draft-proposal, draft-specs-prep]
+
+  # ============================================
+  # DESIGN PHASE
+  # ============================================
+
+  - id: research-design-prep
+    generates: ".instructions/research-design.md"
+    description: Main agent creates design research instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to research patterns for the design.
+      
+      Include:
+      - What patterns to find (similar implementations)
+      - What architectural decisions to examine
+      - What conventions to document
+      - Expected output format
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `.research/design.md`.
+      
+      ## REQUIRED: After Generating `.instructions/research-design.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [draft-proposal]
+
+  - id: research-design
+    generates: ".research/design.md"
+    description: Subagent executes design research using prep instructions
+    template: research-design.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
+      
+      Write findings to `.research/design.md` with:
+      - Similar implementations (with file:line references)
+      - Architectural patterns (with examples)
+      - Code conventions
+      - Integration patterns
+      - Anti-patterns to avoid
+      - Technical constraints
+      - Recommended approach
+    requires: [draft-proposal, research-design-prep]
+
+  - id: draft-design-prep
+    generates: ".instructions/draft-design.md"
+    description: Main agent creates design drafting instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to create the design document.
+      
+      Include:
+      - Key architectural decisions to make
+      - Patterns to apply (from research)
+      - Sections to include
+      - Expected structure
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `design.md`.
+      
+      ## REQUIRED: After Generating `.instructions/draft-design.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [draft-proposal, research-design]
+
+  - id: draft-design
+    generates: "design.md"
+    description: Subagent creates design document using prep instructions
+    template: design.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
+      
+      Create the design document that explains HOW to implement the change.
+
+      When to include design.md (create only if any apply):
+      - Cross-cutting change (multiple services/modules) or new architectural pattern
+      - New external dependency or significant data model changes
+      - Security, performance, or migration complexity
+      - Ambiguity that benefits from technical decisions before coding
+
+      Sections:
+      - **Context**: High-level description, Background, current state, constraints, stakeholders
+      - **Goals / Non-Goals**: What this design achieves and explicitly excludes
+      - **Decisions**: Key technical choices with rationale (why X over Y?). Include alternatives considered for each decision.
+      - **Risks / Trade-offs**: Known limitations, things that could go wrong. Format: [Risk] → Mitigation
+      - **Migration Plan**: Steps to deploy, rollback strategy (if applicable)
+      - **Open Questions**: Outstanding decisions or unknowns to resolve
+
+      Focus on architecture and approach, not line-by-line implementation.
+      Reference the proposal for motivation and specs for requirements.
+
+      Good design docs explain the "why" behind technical decisions.
+    requires: [draft-proposal, draft-design-prep]
+
+  # ============================================
+  # TASKS PHASE
+  # ============================================
+
+  - id: draft-tasks-prep
+    generates: ".instructions/draft-tasks.md"
+    description: Main agent creates tasks drafting instructions for subagent
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
+      Write detailed instructions for a subagent to create the implementation task list.
+      
+      Include:
+      - What tasks to include (from design and specs)
+      - How to structure the checklist
+      - Verification requirements for each task
+      - Expected format (checkboxes, hierarchical numbering)
+      - Keep `You are a Subagent.` and `Follow the provided template from...` in the instructions.
+      - CRITICAL: Read the XML comments in the template carefully. You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` with actual execution values, and provide explicit absolute paths.
+      
+      This instruction will be read by the subagent to create `tasks.md`.
+      
+      ## REQUIRED: After Generating `.instructions/draft-tasks.md`
+      
+      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
+    requires: [draft-specs, draft-design]
+
+  - id: draft-tasks
+    generates: "tasks.md"
+    description: Subagent creates task list using prep instructions
+    template: tasks.md
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions and write output to the provided output path
+      3. Use checkboxes: `- [ ] X.Y Task description`
+      4. Return control to main agent - DO NOT proceed to next artifact
+      
+      Create the task list that breaks down the implementation work.
+
+      **IMPORTANT: Follow the template below exactly.** The apply phase parses
+      checkbox format to track progress. Tasks not using `- [ ]` won't be tracked.
+
+      Guidelines:
+      - Group related tasks under ## numbered headings
+      - Each task MUST be a checkbox: `- [ ] X.Y Task description`
+      - Tasks should be small enough to complete in one session
+      - Order tasks by dependency (what must be done first?)
+
+      Example:
+      ```
+      ## 1. Setup
+
+      - [ ] 1.1 Create new module structure
+      - [ ] 1.2 Add dependencies to package.json
+
+      ## 2. Core Implementation
+
+      - [ ] 2.1 Implement data export function
+      - [ ] 2.2 Add CSV formatting utilities
+      ```
+
+      Reference specs for what needs to be built, design for how to build it.
+      Each task should be verifiable - you know when it's done.
+    requires: [draft-specs, draft-design, draft-tasks-prep]
+
+apply:
+  requires: [draft-tasks]
+  tracks: tasks.md
+  instruction: |
+    Read context files, work through pending tasks, mark complete as you go.
+    Pause if you hit blockers or need clarification.
