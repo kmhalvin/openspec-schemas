@@ -28,7 +28,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/research-proposal.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -45,9 +45,10 @@ artifacts:
       After completion, return control to main agent.
 
       1. Read all completed dependency artifacts for context using the absolute paths provided
-      2. Follow the dependency instructions and write output to the provided output path
-      3. Focus on file:line references, patterns, architectural decisions
-      4. Return control to main agent - DO NOT proceed to next artifact
+      2. Explore the codebase as needed for deep research
+      3. Follow the dependency instructions and write output to the provided output path
+      4. Focus on file:line references, patterns, architectural decisions
+      5. Return control to main agent - DO NOT proceed to next artifact
       
       Write findings to `.research/codebase.md` with:
       - Codebase structure
@@ -80,7 +81,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/research-feasibility.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -97,9 +98,10 @@ artifacts:
       After completion, return control to main agent.
 
       1. Read all completed dependency artifacts for context using the absolute paths provided
-      2. Follow the dependency instructions and write output to the provided output path
-      3. Analyze conflicts, dependencies, risks
-      4. Return control to main agent - DO NOT proceed to next artifact
+      2. Explore the codebase as needed to assess feasibility
+      3. Follow the dependency instructions and write output to the provided output path
+      4. Analyze conflicts, dependencies, risks
+      5. Return control to main agent - DO NOT proceed to next artifact
       
       Write findings to `.research/feasibility.md` with:
       - Feasibility rating (HIGH/MEDIUM/LOW)
@@ -134,7 +136,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/draft-proposal.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -202,7 +204,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/research-specs.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -219,8 +221,9 @@ artifacts:
       After completion, return control to main agent.
 
       1. Read all completed dependency artifacts for context using the absolute paths provided
-      2. Follow the dependency instructions and write output to the provided output path
-      3. Return control to main agent - DO NOT proceed to next artifact
+      2. Explore the codebase as needed to understand existing specs and implementations
+      3. Follow the dependency instructions and write output to the provided output path
+      4. Return control to main agent - DO NOT proceed to next artifact
       
       Write findings to `.research/specs.md` with:
       - Existing specs (with paths and summaries)
@@ -252,7 +255,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/draft-specs.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -269,9 +272,10 @@ artifacts:
       After completion, return control to main agent.
 
       1. Read all completed dependency artifacts for context using the absolute paths provided
-      2. Follow the dependency instructions and write output to the provided output path
-      3. Use delta format: ADDED/MODIFIED/REMOVED Requirements
-      4. Return control to main agent - DO NOT proceed to next artifact
+      2. Explore the codebase as needed to understand existing implementations
+      3. Follow the dependency instructions and write output to the provided output path
+      4. Use delta format: ADDED/MODIFIED/REMOVED Requirements
+      5. Return control to main agent - DO NOT proceed to next artifact
       
       Create specification files that define WHAT the system should do.
 
@@ -349,7 +353,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/research-design.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -366,8 +370,9 @@ artifacts:
       After completion, return control to main agent.
 
       1. Read all completed dependency artifacts for context using the absolute paths provided
-      2. Follow the dependency instructions and write output to the provided output path
-      3. Return control to main agent - DO NOT proceed to next artifact
+      2. Explore the codebase as needed to understand patterns and architecture
+      3. Follow the dependency instructions and write output to the provided output path
+      4. Return control to main agent - DO NOT proceed to next artifact
       
       Write findings to `.research/design.md` with:
       - Similar implementations (with file:line references)
@@ -402,7 +407,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/draft-design.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
@@ -471,7 +476,7 @@ artifacts:
       
       ## REQUIRED: After Generating `.instructions/draft-tasks.md`
       
-      Read your provided project context to find the configured subagent CLI command. Spawn the subagent using that command.
+      Spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
       CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
       Pass the following prompt to the subagent:
       "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts (research-*, draft-*). Do NOT execute *-prep artifacts."
