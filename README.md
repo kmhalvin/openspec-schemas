@@ -13,6 +13,13 @@ It utilizes a Main Agent to formulate instructions, and a Subagent to execute th
 
 - **Learn more**: [subagent-spec-driven documentation](./openspec/schemas/subagent-spec-driven/README.md)
 
+### `qrspi`
+The **QRSPI Framework** is an implementation of Advanced Context Engineering (ACE-FCA). It executes a 6-phase checkpoint sequence: Questions, Research, Design, Structure Outline, Plan, Implement. 
+
+It explicitly forces **Context Wiping** (restarting the Main Agent session) between node executions to absolutely guarantee objective research and eliminate horizontal hallucination in large tasks.
+
+- **Learn more**: [qrspi documentation](./openspec/schemas/qrspi/README.md)
+
 ## Installation
 
 You can install schemas from this repository directly into your OpenSpec workspace.

@@ -8,7 +8,7 @@ The core philosophy of QRSPI is avoiding large monolithic prompts that exhaust a
 
 This schema is a sequential string of artifacts representing the QRSPI lifecycle natively running within OpenSpec's Directed Acyclic Graph (DAG) state machine.
 
-To enable **Frequent Intentional Compaction (FIC)**, this schema isolates every phase by utilizing a Main Agent -> Subagent handoff. For each phase, the Main Agent reads the required context and writes `.instructions/[phase].md`, then spawns a clean Subagent to execute those instructions.
+To enable **Frequent Intentional Compaction (FIC)**, this schema isolates every single phase. Not only does it use a Main Agent -> Subagent handoff, but it forces a complete **Context Drop** (restarting the entire AI task session) after every major structural checkpoint. This completely eliminates instruction budget exhaustion and stops feature hallucination dead in its tracks.
 
 ### 1. Questions (`draft-questions-prep` -> `draft-questions`)
 The main agent drafts instructions. The subagent scans the initial change request and outputs a `questions.md` file listing unknowns, ambiguities, or missing context. The subagent then halts.
