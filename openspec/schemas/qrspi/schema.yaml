@@ -1,0 +1,171 @@
+name: qrspi
+version: 1
+description: A sequential Subagent implementation of the ACE-FCA QRSPI workflow
+
+artifacts:
+  # ============================================
+  # QUESTIONS PHASE
+  # ============================================
+
+  - id: draft-questions
+    generates: "questions.md"
+    description: Main agent asks clarifying questions about the initial task
+    template: questions.md
+    instruction: |
+      ## Main Agent Instructions
+      Read the context and identify what is unknown or ambiguous about this goal.
+      DO NOT immediately write `questions.md`. First, ask your clarifying questions to the user in this chat.
+      Work back and forth in conversation with the user to clarify requirements.
+      
+      ONLY ONCE the Q&A is resolved and you have enough clarity, write the final summary and answers into `questions.md`.
+      
+      ## REQUIRED: Context Drop
+      After creating `questions.md`, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires: []
+
+  # ============================================
+  # RESEARCH PHASE
+  # ============================================
+
+  - id: research-codebase-prep
+    generates: ".instructions/research.md"
+    description: Main agent creates instructions for codebase research
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read the answered Q&A in `questions.md`. Write instructions for the subagent to deeply explore the codebase and output `.research/codebase.md`.
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+
+      ## REQUIRED: Context Drop
+      Once the subagent finishes and `.research/codebase.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires:
+      - draft-questions
+
+  - id: research-codebase
+    generates: ".research/codebase.md"
+    description: Subagent deeply explores codebase to map relevant files and patterns
+    template: research.md
+    instruction: Follow the provided template and instructions in your context.
+    requires:
+      - research-codebase-prep
+      - draft-questions
+
+  # ============================================
+  # DESIGN PHASE
+  # ============================================
+
+  - id: draft-design-prep
+    generates: ".instructions/design.md"
+    description: Main agent creates instructions for moldable design drafting
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read `.research/codebase.md`. Write instructions for the subagent to output `design.md` (the "brain dump" of current state and intended patterns).
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+      
+      ## AFTER SUBAGENT COMPLETES
+      Once the subagent finishes and `design.md` is generated, DO NOT end your task immediately.
+      First, read `design.md`. Present the proposed patterns and decisions to the user and ask for their approval.
+      Discuss the design back-and-forth. If the user rejects a pattern, update `design.md` accordingly.
+      Only end your task once the user explicitly approves the final design.
+
+      ## REQUIRED: Context Drop
+      Once the user approves the final design, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires:
+      - research-codebase
+
+  - id: draft-design
+    generates: "design.md"
+    description: Subagent brain-dumps intentions and current/future state for human review
+    template: design.md
+    instruction: Follow the provided template and instructions in your context.
+    requires:
+      - draft-design-prep
+      - research-codebase
+
+  # ============================================
+  # STRUCTURE PHASE
+  # ============================================
+
+  - id: draft-structure-prep
+    generates: ".instructions/structure.md"
+    description: Main agent creates instructions for architectural formatting
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read the original ticket, the research in `.research/codebase.md`, and the approved `design.md`. 
+      Write instructions for the subagent to draft `structure.md` (the "C header" architecture based on the approved design).
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+
+      ## REQUIRED: Context Drop
+      Once the subagent finishes and `structure.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires:
+      - draft-design
+      - research-codebase
+
+  - id: draft-structure
+    generates: "structure.md"
+    description: Subagent writes high-level outline of phase architecture
+    template: structure.md
+    instruction: Follow the provided template and instructions in your context.
+    requires:
+      - draft-structure-prep
+      - draft-design
+      - research-codebase
+
+  # ============================================
+  # PLAN PHASE
+  # ============================================
+
+  - id: draft-plan-prep
+    generates: ".instructions/plan.md"
+    description: Main agent creates instructions for task planning
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read the approved `structure.md`. Write instructions for the subagent to generate the detailed task checklists in `plan.md`.
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+
+      ## REQUIRED: Context Drop
+      Once the subagent finishes and `plan.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires:
+      - draft-structure
+      - draft-design
+      - research-codebase
+
+  - id: draft-plan
+    generates: "plan.md"
+    description: Subagent writes concrete task checklists grouped by phase
+    template: plan.md
+    instruction: Follow the provided template and instructions in your context.
+    requires:
+      - draft-plan-prep
+      - draft-structure
+      - draft-design
+      - research-codebase
+
+apply:
+  requires: [draft-plan]
+  tracks: plan.md
+  instruction: |
+    You are in the Implement Phase. Open `plan.md`.
+    Execute the plan task by task. Once a task is completed, mark it as `[x]` using the edit tool.
+    Verify your work by running the automated Success Criteria tests listed in the file.
+    When a Phase requires Manual verification, pause and explicitly ask the user to verify.
