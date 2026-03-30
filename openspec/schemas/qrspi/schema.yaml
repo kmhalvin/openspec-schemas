@@ -4,6 +4,32 @@ description: A sequential Subagent implementation of the ACE-FCA QRSPI workflow
 
 artifacts:
   # ============================================
+  # ALIGNMENT PHASE: QUESTION RESEARCH
+  # ============================================
+
+  - id: question-research-prep
+    generates: ".instructions/question-research.md"
+    description: Main agent creates instructions for pre-question codebase mapping
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read the context and original ticket to understand what is being asked.
+      DO NOT immediately ask questions. Instead, write instructions for the subagent to blindly browse the codebase to map relevant files and context into `.alignment/question-research.md`. This will help you ask targeted questions later.
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+    requires: []
+
+  - id: question-research
+    generates: ".alignment/question-research.md"
+    description: Subagent maps codebase based on initial ticket to assist with targeted questions
+    template: question-research.md
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    requires:
+      - question-research-prep
+
+  # ============================================
   # QUESTIONS PHASE
   # ============================================
 
@@ -13,7 +39,7 @@ artifacts:
     template: questions.md
     instruction: |
       ## Main Agent Instructions
-      Read the context and identify what is unknown or ambiguous about this goal.
+      Read the context, original ticket, and `.alignment/question-research.md`.
       DO NOT immediately write `questions.md`. First, ask your clarifying questions to the user in this chat.
       Work back and forth in conversation with the user to clarify requirements.
       
@@ -22,7 +48,8 @@ artifacts:
       ## REQUIRED: Context Drop
       After creating `questions.md`, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
       Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
-    requires: []
+    requires:
+      - question-research
 
   # ============================================
   # RESEARCH PHASE
@@ -38,7 +65,7 @@ artifacts:
       
       ## REQUIRED: Subagent Handoff
       Spawn the subagent using:
-      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
       Once the subagent finishes and `.research/codebase.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
@@ -50,9 +77,58 @@ artifacts:
     generates: ".research/codebase.md"
     description: Subagent deeply explores codebase to map relevant files and patterns
     template: research.md
-    instruction: Follow the provided template and instructions in your context.
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
     requires:
       - research-codebase-prep
+      - draft-questions
+
+  # ============================================
+  # ALIGNMENT PHASE: DESIGN PROPOSAL
+  # ============================================
+
+  - id: design-proposal-prep
+    generates: ".instructions/design-proposal.md"
+    description: Main agent creates instructions for architecture proposal drafting
+    template: instruction.md
+    instruction: |
+      ## Main Agent Instructions
+      Read `.research/codebase.md`. Write instructions for the subagent to output `.alignment/design-proposal.md` (the "brain dump" of patterns it intends to mimic).
+      
+      ## REQUIRED: Subagent Handoff
+      Spawn the subagent using:
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+
+      ## REQUIRED: Context Drop
+      Once the subagent finishes and `.alignment/design-proposal.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
+    requires:
+      - research-codebase
+      - draft-questions
+
+  - id: design-proposal
+    generates: ".alignment/design-proposal.md"
+    description: Subagent brain-dumps intentions and architectural patterns
+    template: design-proposal.md
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    requires:
+      - design-proposal-prep
+      - research-codebase
+      - draft-questions
+
+  - id: design-review
+    generates: ".alignment/design-review.md"
+    description: Main agent discusses proposed patterns with user for brain surgery alignment
+    template: design-review.md
+    instruction: |
+      ## Main Agent Instructions
+      Read `.alignment/design-proposal.md`. 
+      
+      CRITICAL LEVERAGE POINT: Present the proposed patterns and decisions to the user and ask for their approval.
+      Discuss the design back-and-forth. If the user rejects a pattern, make a note of it.
+      Only once the user explicitly approves the final design approach, write the outcomes into `.alignment/design-review.md`.
+    requires:
+      - design-proposal
+      - research-codebase
       - draft-questions
 
   # ============================================
@@ -61,36 +137,34 @@ artifacts:
 
   - id: draft-design-prep
     generates: ".instructions/design.md"
-    description: Main agent creates instructions for moldable design drafting
+    description: Main agent creates instructions for formal design drafting
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
-      Read `.research/codebase.md`. Write instructions for the subagent to output `design.md` (the "brain dump" of current state and intended patterns).
+      Read `.alignment/design-review.md`. Write instructions for the subagent to draft the final formal `design.md` document based entirely on the approved patterns.
       
       ## REQUIRED: Subagent Handoff
       Spawn the subagent using:
-      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
-      
-      ## AFTER SUBAGENT COMPLETES
-      Once the subagent finishes and `design.md` is generated, DO NOT end your task immediately.
-      First, read `design.md`. Present the proposed patterns and decisions to the user and ask for their approval.
-      Discuss the design back-and-forth. If the user rejects a pattern, update `design.md` accordingly.
-      Only end your task once the user explicitly approves the final design.
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
-      Once the user approves the final design, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
+      Once the subagent finishes and `design.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
       Tell the user: "Start a New Task, then run `/opsx-continue` to proceed with a fresh context window."
     requires:
+      - design-review
       - research-codebase
+      - draft-questions
 
   - id: draft-design
     generates: "design.md"
-    description: Subagent brain-dumps intentions and current/future state for human review
+    description: Subagent drafts final architectural design document based on approved reviews
     template: design.md
-    instruction: Follow the provided template and instructions in your context.
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
     requires:
       - draft-design-prep
+      - design-review
       - research-codebase
+      - draft-questions
 
   # ============================================
   # STRUCTURE PHASE
@@ -107,7 +181,7 @@ artifacts:
       
       ## REQUIRED: Subagent Handoff
       Spawn the subagent using:
-      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
       Once the subagent finishes and `structure.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
@@ -115,16 +189,18 @@ artifacts:
     requires:
       - draft-design
       - research-codebase
+      - draft-questions
 
   - id: draft-structure
     generates: "structure.md"
     description: Subagent writes high-level outline of phase architecture
     template: structure.md
-    instruction: Follow the provided template and instructions in your context.
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
     requires:
       - draft-structure-prep
       - draft-design
       - research-codebase
+      - draft-questions
 
   # ============================================
   # PLAN PHASE
@@ -140,7 +216,7 @@ artifacts:
       
       ## REQUIRED: Subagent Handoff
       Spawn the subagent using:
-      "/opsx-continue Working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
+      "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
       Once the subagent finishes and `plan.md` is generated, you MUST end your session immediately (e.g., use `attempt_completion` or tell the user to click "Start New Task / Chat").
@@ -149,17 +225,19 @@ artifacts:
       - draft-structure
       - draft-design
       - research-codebase
+      - draft-questions
 
   - id: draft-plan
     generates: "plan.md"
     description: Subagent writes concrete task checklists grouped by phase
     template: plan.md
-    instruction: Follow the provided template and instructions in your context.
+    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
     requires:
       - draft-plan-prep
       - draft-structure
       - draft-design
       - research-codebase
+      - draft-questions
 
 apply:
   requires: [draft-plan]

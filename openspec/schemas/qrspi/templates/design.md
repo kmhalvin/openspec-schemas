@@ -21,8 +21,15 @@ _Subagent: What will the codebase do after this change is complete?_
 
 [Desired End State]
 
-## Patterns to Follow (For Review)
-_Subagent: List out the architectural patterns, libraries, or conventions you found in your research that you INTEND to follow for this implementation. The user will review these to ensure you aren't cloning deprecated or incorrect patterns._
+## Patterns to Follow
+_Subagent: List out the architectural patterns, libraries, or conventions you found in your research that you INTEND to follow for this implementation._
+
+- **Pattern found:** [Describe pattern] -> **Where:** [File location]
+
+## Patterns to AVOID
+_Subagent: List any patterns you found that look deprecated, wrong, or outwardly dangerous to mimic._
+
+- **Anti-pattern:** [Describe anti-pattern] -> **Why to avoid:** [Reason]
 
 - **Pattern found:** [Describe pattern] -> **Where:** [File location]
 - **Pattern found:** [Describe pattern] -> **Where:** [File location]
@@ -33,8 +40,10 @@ _Subagent: Detail the specific technical decisions you've made (e.g., "We will u
 - [Decision 1]
 - [Decision 2]
 
-## Open Questions
-_Subagent: If there are any final architectural constraints or ambiguities you need the user to resolve before you write the C-Header structure outline, list them here._
+## Constraints
+_Subagent: List technical or business constraints discovered._
+- [Constraint 1]
 
-> [!NOTE] 
-> **User Instructions**: Review the **Patterns to Follow** above. If the agent selected a bad or deprecated codebase pattern to mimic, correct it here before running `/opsx-continue`.
+## Open Risks
+_Subagent: List anything that could blow up during implementation._
+- [Risk 1]
