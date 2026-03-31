@@ -8,7 +8,40 @@ The core philosophy of QRSPI is avoiding large monolithic prompts that exhaust a
 
 This schema is a sequential string of artifacts representing the QRSPI lifecycle natively running within OpenSpec's Directed Acyclic Graph (DAG) state machine.
 
+```mermaid
+graph TD
+    classDef main fill:#1f77b4,stroke:#fff,stroke-width:2px,color:#fff;
+    classDef sub fill:#ff7f0e,stroke:#fff,stroke-width:2px,color:#fff;
+    
+    %% Legend
+    subgraph Legend
+        MainAgent[Main Agent]:::main
+        SubAgent[Subagent]:::sub
+    end
+
+    qrp[question-research-prep]:::main --> qr[question-research]:::sub
+    qr --> dq[draft-questions]:::main
+    dq --> rcp[research-codebase-prep]:::main
+    rcp --> rc[research-codebase]:::sub
+    rc --> dpp[design-proposal-prep]:::main
+    dpp --> dp[design-proposal]:::sub
+    dp --> dr[design-review]:::main
+    dr --> ddp[draft-design-prep]:::main
+    ddp --> dd[draft-design]:::sub
+    dd --> dsp[draft-structure-prep]:::main
+    dsp --> ds[draft-structure]:::sub
+    ds --> dplp[draft-plan-prep]:::main
+    dplp --> dpl[draft-plan]:::sub
+    dpl --> a[apply]:::main
+```
+
 To enable **Frequent Intentional Compaction (FIC)**, this schema isolates every single phase. Not only does it use a Main Agent -> Subagent handoff, but it forces a complete **Context Drop** (restarting the entire AI task session) after every major structural checkpoint. This completely eliminates instruction budget exhaustion and stops feature hallucination dead in its tracks.
+
+## How Handoffs Work (The `*-prep` Nodes)
+
+If you look at the DAG, you'll see nodes like `draft-design-prep` followed immediately by `draft-design`. 
+- **Main Agent (`*-prep`)**: The Main Agent evaluates the previous completed artifacts and dynamically generates a strict `.instructions/<artifact>.md` command payload.
+- **Subagent Execution**: Stripped of the original ticket and unverified conversation history, an isolated Subagent blindly executes the instructions provided in the `.instructions/` file. This forces mathematical alignment and absolute determinism.
 
 ### 1. Pre-Question Local Codebase Mapping (`question-research-prep` -> `question-research`)
 To ensure the Main Agent's questions are actually relevant to the codebase, the Subagent first performs a blind traversal based strictly on the user's initial prompt string. It maps out relevant modules and files into `.alignment/question-research.md`.

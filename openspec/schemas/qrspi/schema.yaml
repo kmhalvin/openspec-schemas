@@ -15,9 +15,14 @@ artifacts:
       ## Main Agent Instructions
       Read the context and original ticket to understand what is being asked.
       DO NOT immediately ask questions. Instead, write instructions for the subagent to blindly browse the codebase to map relevant files and context into `.alignment/question-research.md`. This will help you ask targeted questions later.
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/question-research.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
     requires: []
 
@@ -25,7 +30,15 @@ artifacts:
     generates: ".alignment/question-research.md"
     description: Subagent maps codebase based on initial ticket to assist with targeted questions
     template: question-research.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/question-research.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - question-research-prep
 
@@ -39,6 +52,9 @@ artifacts:
     template: questions.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read the context, original ticket, and `.alignment/question-research.md`.
       DO NOT immediately write `questions.md`. First, ask your clarifying questions to the user in this chat.
       Work back and forth in conversation with the user to clarify requirements.
@@ -61,10 +77,18 @@ artifacts:
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read the answered Q&A in `questions.md`. Write instructions for the subagent to deeply explore the codebase and output `.research/codebase.md`.
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/research.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
@@ -77,7 +101,15 @@ artifacts:
     generates: ".research/codebase.md"
     description: Subagent deeply explores codebase to map relevant files and patterns
     template: research.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/research.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - research-codebase-prep
       - draft-questions
@@ -92,10 +124,18 @@ artifacts:
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read `.research/codebase.md`. Write instructions for the subagent to output `.alignment/design-proposal.md` (the "brain dump" of patterns it intends to mimic).
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/design-proposal.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
@@ -109,7 +149,15 @@ artifacts:
     generates: ".alignment/design-proposal.md"
     description: Subagent brain-dumps intentions and architectural patterns
     template: design-proposal.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/design-proposal.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - design-proposal-prep
       - research-codebase
@@ -121,6 +169,9 @@ artifacts:
     template: design-review.md
     instruction: |
       ## Main Agent Instructions
+
+      Before proceeding, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read `.alignment/design-proposal.md`. 
       
       CRITICAL LEVERAGE POINT: Present the proposed patterns and decisions to the user and ask for their approval.
@@ -141,10 +192,18 @@ artifacts:
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read `.alignment/design-review.md`. Write instructions for the subagent to draft the final formal `design.md` document based entirely on the approved patterns.
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/design.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
@@ -159,7 +218,15 @@ artifacts:
     generates: "design.md"
     description: Subagent drafts final architectural design document based on approved reviews
     template: design.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/design.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - draft-design-prep
       - design-review
@@ -176,11 +243,19 @@ artifacts:
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read the original ticket, the research in `.research/codebase.md`, and the approved `design.md`. 
       Write instructions for the subagent to draft `structure.md` (the "C header" architecture based on the approved design).
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/structure.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
@@ -195,7 +270,15 @@ artifacts:
     generates: "structure.md"
     description: Subagent writes high-level outline of phase architecture
     template: structure.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/structure.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - draft-structure-prep
       - draft-design
@@ -212,10 +295,18 @@ artifacts:
     template: instruction.md
     instruction: |
       ## Main Agent Instructions
+
+      Before writing instructions, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
+
       Read the approved `structure.md`. Write instructions for the subagent to generate the detailed task checklists in `plan.md`.
+
+      CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
-      ## REQUIRED: Subagent Handoff
-      Spawn the subagent using:
+      ## REQUIRED: After Generating `.instructions/plan.md`
+      
+      DO NOT STOP. You must immediately spawn a subagent to execute the next artifact. If your agent has a built-in subagent tool (e.g. Task()), use it directly. Otherwise, read your provided project context to find the configured subagent CLI command.
+      CRITICAL: Main Agent MUST replace `{CHANGE_NAME}` with the real change name string before executing so the subagent has the correct context!
+      Pass the following prompt to the subagent:
       "/opsx-continue You are a Subagent working on change: {CHANGE_NAME}\n\nExecute ONLY subagent artifacts. Do NOT execute *-prep artifacts."
 
       ## REQUIRED: Context Drop
@@ -231,7 +322,15 @@ artifacts:
     generates: "plan.md"
     description: Subagent writes concrete task checklists grouped by phase
     template: plan.md
-    instruction: Follow the provided template and explicitly read every artifact dependency provided in your context.
+    instruction: |
+      ## Subagent Instructions
+
+      IMPORTANT: Execute ONLY this artifact. Do not continue to other artifacts.
+      After completion, return control to main agent.
+
+      1. Read all completed dependency artifacts for context using the absolute paths provided
+      2. Follow the dependency instructions provided in the `.instructions/plan.md` file and write output to the provided output path
+      3. Return control to main agent - DO NOT proceed to next artifact
     requires:
       - draft-plan-prep
       - draft-structure

@@ -7,19 +7,19 @@
 # Open Questions: {CHANGE_NAME}
 
 ## Context & Understanding
-_Agent: Provide a 1-2 sentence summary of what you understand this change is trying to achieve._
+_Main Agent: Provide a 1-2 sentence summary of what you understand this change is trying to achieve._
 
 [Summary here]
 
 ## Question Constraints
-_Agent: The downstream Subagent will use these questions to perform BLIND CODEBASE RESEARCH. It must NOT know what you are building. It must only find facts._
+_Main Agent: The downstream Subagent will use these questions to perform BLIND CODEBASE RESEARCH. It must NOT know what you are building. It must only find facts._
 - **Frame every question as "document what exists"** — never "how to change/build".
 - **NEVER mention what is being built or why** in the question texts.
 - **Order your questions** from foundational (data/types) to surface (UI/API).
 
 ## Resolved Objective Questions
-_Agent: List the exact, objective questions the Subagent must answer based on the conversation._
-_Agent: Summarize the Q&A conversation you just had with the user. List the specific business logic decisions, existing patterns, or edge cases that were clarified._
+_Main Agent: List the exact, objective questions the Subagent must answer based on the conversation._
+_Main Agent: Summarize the Q&A conversation you just had with the user. List the specific business logic decisions, existing patterns, or edge cases that were clarified._
 
 1. [Resolved Question 1]
 2. [Resolved Question 2]

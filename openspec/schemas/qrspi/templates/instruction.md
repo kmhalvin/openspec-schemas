@@ -6,14 +6,6 @@
 
 # Subagent Instructions: {CHANGE_NAME}
 
-<!-- 
-This file is created by the main agent to provide detailed instructions for a subagent.
-MAIN AGENT INSTRUCTIONS:
-1. Fill in the sections below based on the specific artifact being prepared.
-2. IMPORTANT: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with the exact string values from your execution context.
-3. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
--->
-
 ## Objective
 
 _Main Agent: State clearly what the Subagent must accomplish during this execution node._
