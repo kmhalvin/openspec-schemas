@@ -12,7 +12,9 @@ _Subagent: Provide a brief summary of how the approved `design.md` will be imple
 [Summary here]
 
 ## High-Level Architecture (C Header Style)
-_Subagent: Based entirely on the decisions in `design.md`, outline the new types, function signatures, interfaces, or database models. This is NOT the implementation code, just the structural definitions so the user can verify the API interface before step-by-step tasks are written._
+_Subagent: Based entirely on the decisions in `design.md`, outline the new types, function signatures, interfaces, or database models._
+
+**Constraint**: Keep phases you're confident about high-level. Expand only where ambiguity is risky. If you think the implementing agent might get a phase wrong, expand that phase to show specific types and function signatures. Do NOT write full implementation code.
 
 ```typescript
 // Example:
@@ -34,17 +36,24 @@ Example Vertical Flow:
 - Phase 4: Do the real database migration and wire everything together._
 
 ### Phase 1: [Phase Name]
-- **Goal**: [What does this phase achieve?]
-- **Test Checkpoint**: [How will we verify this phase works before moving to Phase 2?]
-- **Key Files**: [Files touched in this phase]
+**Scope**: [which vertical slice]
+**Key changes**:
+- `[file/component]`: [what changes — new types, signatures, or brief description]
+- `[file/component]`: [what changes]
+**Verification**: [how to confirm this phase works]
 
 ### Phase 2: [Phase Name]
-- **Goal**: [What does this phase achieve?]
-- **Test Checkpoint**: [How will we verify this phase works?]
-- **Key Files**: [Files touched in this phase]
+**Scope**: [which vertical slice]
+**Key changes**:
+- `[file/component]`: [what changes]
+**Verification**: [how to confirm this phase works]
 
-### Phase 3: [Phase Name]
-- ...
+### Phase N: Testing & Polish
+**Scope**: edge cases, error handling, cleanup
+**Key changes**:
+- [tests to add]
+- [error handling to add]
+**Verification**: [how to confirm this phase works]
 
 ## Out of Scope
 _Subagent: Explicitly list what is NOT being changed or handled to prevent scope creep._

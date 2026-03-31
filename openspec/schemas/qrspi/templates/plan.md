@@ -6,9 +6,12 @@
 
 # Implementation Plan: {CHANGE_NAME}
 
-## Goal
+## Overview
+[1-2 sentence summary of the verified structure outline]
 
-[Summarize the verified structure outline]
+## Scope Boundaries
+_Subagent: What are we explicitly NOT doing in this implementation?_
+- [Out of scope item]
 
 ## Execution Plan
 
@@ -16,9 +19,16 @@ _Subagent: List specific, actionable tasks mapped to the approved phases. Use `[
 
 ### Phase 1: [Phase Name]
 
-#### Tasks
-- [ ] Task 1: [Specific instruction] (File: `path/to/file.ext`)
-- [ ] Task 2: [Specific instruction] (File: `path/to/file.ext`)
+#### Changes Required
+_Subagent: List specific, actionable tasks. Use `[ ]` checklist format. Tasks must be small enough to complete iteratively._
+
+- [ ] **Task 1:** [Specific instruction]
+  - **File:** `path/to/file.ext`
+  - **Action:** [What exactly changes in this file?]
+  
+- [ ] **Task 2:** [Specific instruction]
+  - **File:** `path/to/file.ext`
+  - **Action:** [What exactly changes in this file?]
 
 #### Success Criteria (Automated)
 - [ ] Code compiles and type-checks (`npm run build`, `tsc`, `make`, etc.)
@@ -31,12 +41,27 @@ _Subagent: List specific, actionable tasks mapped to the approved phases. Use `[
 
 ### Phase 2: [Phase Name]
 
-#### Tasks
-- [ ] Task 1: [Specific instruction]
-- [ ] Task 2: [Specific instruction]
+#### Changes Required
 
-#### Success Criteria (Automated)
-- [ ] Tests pass.
+- [ ] **Task 1:** [Specific instruction]
+  - **File:** `path/to/file.ext`
+  - **Action:** [What exactly changes in this file?]
 
-#### Success Criteria (Manual)
-- [ ] Feature functions end-to-end.
+#### Success Criteria / Verification:
+_Subagent: List the automated commands or manual steps required to verify this phase._
+
+### Automated Checks:
+- `[ ]` `make check` (or equivalent linter)
+- `[ ]` `make test` (or equivalent test runner)
+- `[ ]` `make build` (or equivalent build command)
+
+### Manual Checks:
+- `[ ]` [Specific manual verification step]
+
+> **Pause for manual verification before proceeding to the next Phase.**
+
+---
+
+## Testing Strategy
+_Subagent: Provide the overarching strategy for how this implementation will be tested (Unit, E2E, Manual)._
+- [Strategy details]

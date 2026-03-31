@@ -6,31 +6,28 @@
 
 # Codebase Research: {CHANGE_NAME}
 
-## Overview
-_Subagent: Briefly summarize the scope of this research based on the previously answered questions._
+## Critical Rule
+_Subagent: Your output must be 100% factual. Document what exists, how it works, and where it lives. ZERO OPINIONS. ZERO SUGGESTIONS. ZERO IMPLEMENTATION IDEAS. Do not critique code quality, and do not editorialize._
 
-[Summary here]
+## Objective Findings
+_Subagent: Answer the assigned research questions factually, using exact file:line references._
 
-## Discovered Patterns
-_Subagent: What existing code patterns, conventions, or architecture rules did you find that should be followed for this change?_
+### Question: [Paste Question 1]
+[Factual answer detailing what exists and how it works]
+- **File:** `path/to/file.ext:start-end`
 
-- [Pattern 1 with file reference]
-- [Pattern 2 with file reference]
+### Question: [Paste Question 2]
+[Factual answer detailing what exists and how it works]
+- **File:** `path/to/file.ext:start-end`
 
-## Target Files & Components
-_Subagent: Provide specific paths and line numbers of the code that needs to be modified, and what exists there currently. Do NOT suggest code changes here, only document the current state._
+## Code References Database
+_Subagent: Create an index of every single file you looked at that is relevant to the topics above, so downstream agents can find them instantly._
 
-### `[filePath.ext]`
-- **Location**: `path/to/file.ext:start-end`
-- **Current State**: [Describe what it currently does]
-- **Relevance**: [Why it needs to change for this task]
+- `path/to/file.ext:123` - [Brief description of what exists here]
+- `path/to/file.ext:456` - [Brief description of what exists here]
 
-### `[filePath.ext]`
-- **Location**: `path/to/file.ext:start-end`
-- **Current State**: [Describe what it currently does]
-- **Relevance**: [Why it needs to change for this task]
+## Patterns Found
+_Subagent: Document any existing codebase patterns discovered during this research (e.g., "The API uses a repository pattern", "Errors are handled using a central middleware"). Document these without judgment._
 
-## External Dependencies / Integrations
-_Subagent: List any required dependencies, API constraints, or database schemas that dictate how this code must be structured._
-
-[Dependencies here]
+- **Pattern:** [Description]
+- **Location:** `path/to/file.ext`
