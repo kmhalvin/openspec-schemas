@@ -6,11 +6,6 @@
 
 # Open Questions: {CHANGE_NAME}
 
-## Context & Understanding
-_Main Agent: Provide a 1-2 sentence summary of what you understand this change is trying to achieve._
-
-[Summary here]
-
 ## Question Constraints
 _Main Agent: The downstream Subagent will use these questions to perform BLIND CODEBASE RESEARCH. It must NOT know what you are building. It must only find facts._
 - **Frame every question as "document what exists"** — never "how to change/build".
