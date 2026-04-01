@@ -21,64 +21,56 @@ graph TD
 
     qrp[question-research-prep]:::main --> qr[question-research]:::sub
     qr --> dq[draft-questions]:::main
-    dq --> rcp[research-codebase-prep]:::main
-    rcp --> rc[research-codebase]:::sub
+    dq --> rc[research-codebase]:::main
     rc --> dpp[design-proposal-prep]:::main
     dpp --> dp[design-proposal]:::sub
-    dp --> dr[design-review]:::main
-    dr --> ddp[draft-design-prep]:::main
-    ddp --> dd[draft-design]:::sub
-    dd --> dsp[draft-structure-prep]:::main
-    dsp --> ds[draft-structure]:::sub
-    ds --> dplp[draft-plan-prep]:::main
-    dplp --> dpl[draft-plan]:::sub
+    dp --> dd[draft-design]:::main
+    dd --> ds[draft-structure]:::main
+    ds --> dpl[draft-plan]:::main
     dpl --> a[apply]:::main
 ```
 
-To enable **Frequent Intentional Compaction (FIC)**, this schema isolates every single phase. Not only does it use a Main Agent -> Subagent handoff, but it forces a complete **Context Drop** (restarting the entire AI task session) after every major structural checkpoint. This completely eliminates instruction budget exhaustion and stops feature hallucination dead in its tracks.
+To enable **Frequent Intentional Compaction (FIC)**, this schema isolates every single phase using a mix of explicitly routed Subagents and autonomous **Context Drops** (restarting the entire AI task session). This completely eliminates instruction budget exhaustion and stops feature hallucination dead in its tracks.
 
-## How Handoffs Work (The `*-prep` Nodes)
+## How Handoffs & Context Drops Work
 
-If you look at the DAG, you'll see nodes like `draft-design-prep` followed immediately by `draft-design`. 
-- **Main Agent (`*-prep`)**: The Main Agent evaluates the previous completed artifacts and dynamically generates a strict `.instructions/<artifact>.md` command payload.
-- **Subagent Execution**: Stripped of the original ticket and unverified conversation history, an isolated Subagent blindly executes the instructions provided in the `.instructions/` file. This forces mathematical alignment and absolute determinism.
+To ensure speed and efficiency, the DAG relies on two distinct mechanisms to clear its memory:
+
+1. **Subagent Handoffs (`*-prep` nodes)**: For phases where the agent must perform "Blind" code mapping without ticket bias, the Main Agent dynamically generates a strict `.instructions/<artifact>.md` payload. An isolated Subagent is spawned to execute the instructions blindly.
+2. **Autonomous Context Drops**: For linearly executed document drafting, the Main Agent generates the file directly, then performs a Context Drop to wipe its conversational memory before moving to the next node. If your agent framework supports tools like `<new_task>`, this happens completely autonomously without human intervention!
 
 ### 1. Pre-Question Local Codebase Mapping (`question-research-prep` -> `question-research`)
 To ensure the Main Agent's questions are actually relevant to the codebase, the Subagent first performs a blind traversal based strictly on the user's initial prompt string. It maps out relevant modules and files into `.alignment/question-research.md`.
 
 ### 2. Questions (`draft-questions`)
-The **Main Agent** reads the initial change request and the `.alignment/question-research.md` artifact. It halts to hold a conversational Q&A with you. Once it understands the exact technical and business boundaries, it outputs `questions.md`.
-**Human Action:** Answer questions in chat. Once `questions.md` is generated, follow its instructions to "Start New Task / Chat" to trigger a **Context Drop**.
+The **Main Agent** reads the initial change request and the `.alignment/question-research.md` artifact. It halts to hold a conversational Q&A with you. Once it understands the exact technical and business boundaries, it outputs `questions.md`. 
+**Action:** Context Drop (Autonomous).
 
-### 3. Objective Codebase Research (`research-codebase-prep` -> `research-codebase`)
-Triggered from the clean session, the Main Agent reads *only* `questions.md` and spins up the Subagent. Stripped of the original ticket to prevent hallucinated opinions, the subagent objectively explores the codebase, compiling file lines and constraints. It outputs `.research/codebase.md`.
-**Human Action:** Start New Task (Context Drop).
+### 3. Objective Codebase Research (`research-codebase`)
+Triggered from the clean session, the Main Agent reads *only* `questions.md` (no ticket history). Stripped of the original ticket to prevent hallucinated opinions, the agent objectively explores the codebase, compiling file lines and constraints. It outputs `codebase.md`.
+**Action:** Context Drop (Autonomous).
 
 ### 4. Design Proposal (`design-proposal-prep` -> `design-proposal`)
 The Main Agent spins up the Subagent to dump its intended architectural approach into `.alignment/design-proposal.md` based on its codebase findings. This contains the "Current State", the "Expected End State", and directly identifies the architectural patterns it found in the codebase that it intends to mimic.
-**Human Action:** Start New Task (Context Drop).
 
-### 5. Design Review / "Brain Surgery" (`design-review`)
-The Main Agent reads the proposal and halts. This is the **Critical Conversational Leverage Point**. Review the patterns generated by the Subagent. Perform "brain surgery"—if it suggests a bad architectural pattern or misunderstands the framework, reject it in chat. Once you approve the final mandate, the Main Agent writes `.alignment/design-review.md`.
+### 5. Design Review & Formalization (`draft-design`)
+The Main Agent reads the proposal and halts. This is the **Critical Conversational Leverage Point**. Review the patterns generated by the Subagent. Perform "brain surgery"—if it suggests a bad architectural pattern or misunderstands the framework, reject it in chat. Once you approve the final mandate, the Main Agent drafts the formal `design.md` artifact.
+**Action:** Context Drop (Autonomous).
 
-### 6. Design Document Formalization (`draft-design-prep` -> `draft-design`)
-A Subagent reads the finalized review mandate and creates the formal `design.md` artifact.
-**Human Action:** Start New Task (Context Drop).
+### 6. Structure Outline (`draft-structure`)
+Relying entirely on the formalized `design.md`, the Main Agent drafts a 1-2 page `structure.md` file. It resembles a C header file—defining the horizontal scope by breaking everything into **Vertical Test Slices** with verification checkpoints.
+**Action:** Context Drop (Autonomous).
 
-### 7. Structure Outline (`draft-structure-prep` -> `draft-structure`)
-Relying entirely on the formalized `design.md`, the Subagent drafts a 1-2 page `structure.md` file. It resembles a C header file—defining the horizontal scope by breaking everything into **Vertical Test Slices** with verification checkpoints.
-**Human Action:** Review this short technical design doc to correct any bad API boundaries *before* step-by-step sequential code-edit tasks are written. Start New Task (Context Drop).
+### 7. Implementation Plan (`draft-plan`)
+Once `structure.md` is approved, the agent generates a concrete execution checklist inside `plan.md`. Tasks are grouped by logical vertical phases, ensuring the AI implements a fully testable slice of code before touching other areas.
+**Action:** Context Drop (Autonomous).
 
-### 8. Implementation Plan (`draft-plan-prep` -> `draft-plan`)
-Once `structure.md` is approved, the subagent generates a concrete execution checklist inside `plan.md`. Tasks are grouped by logical vertical phases, ensuring the AI implements a fully testable slice of code before touching other areas.
-**Human Action:** Start New Task (Context Drop).
-
-### 9. Execution (`apply`)
-The agent actually writes the code natively in its loop, acting its way down the `plan.md` checklist and verifying against its self-defined success criteria.
+### 8. Execution (`apply`)
+The agent reads all 5 generated artifacts to load the verified truth into its fresh session memory. It then natively loops through the `plan.md` checklist, executing tasks and verifying against its self-defined automated success criteria.
 
 ## Subagent Requirements
 
-This schema relies on a **Subagent** pattern to maintain context isolation.
+This schema relies on a **Subagent** pattern to maintain context isolation during the Alignment phases.
 
 If your agent (like Claude Code) provides subagents as a capability/tool (e.g. `Task()`), it will autonomously spawn them. If your agent is read-only or doesn't have parallel capabilities, you can provide an external CLI command in `openspec/config.yaml` to enforce sequential subagent execution:
 
