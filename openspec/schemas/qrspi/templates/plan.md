@@ -10,17 +10,17 @@
 [1-2 sentence summary of the verified structure outline]
 
 ## Scope Boundaries
-_Subagent: What are we explicitly NOT doing in this implementation?_
+_Main Agent: What are we explicitly NOT doing in this implementation?_
 - [Out of scope item]
 
 ## Execution Plan
 
-_Subagent: List specific, actionable tasks mapped to the approved phases. Use `[ ]` checklist format. Tasks must be small enough to complete iteratively. Define clear success criteria for each task._
+_Main Agent: List specific, actionable tasks mapped to the approved phases. Use `[ ]` checklist format. Tasks must be small enough to complete iteratively. Define clear success criteria for each task._
 
 ### Phase 1: [Phase Name]
 
 #### Changes Required
-_Subagent: List specific, actionable tasks. Use `[ ]` checklist format. Tasks must be small enough to complete iteratively._
+_Main Agent: List specific, actionable tasks. Use `[ ]` checklist format. Tasks must be small enough to complete iteratively._
 
 - [ ] **Task 1:** [Specific instruction]
   - **File:** `path/to/file.ext`
@@ -48,7 +48,7 @@ _Subagent: List specific, actionable tasks. Use `[ ]` checklist format. Tasks mu
   - **Action:** [What exactly changes in this file?]
 
 #### Success Criteria / Verification:
-_Subagent: List the automated commands or manual steps required to verify this phase._
+_Main Agent: List the automated commands or manual steps required to verify this phase._
 
 ### Automated Checks:
 - `[ ]` `make check` (or equivalent linter)
@@ -63,5 +63,5 @@ _Subagent: List the automated commands or manual steps required to verify this p
 ---
 
 ## Testing Strategy
-_Subagent: Provide the overarching strategy for how this implementation will be tested (Unit, E2E, Manual)._
+_Main Agent: Provide the overarching strategy for how this implementation will be tested (Unit, E2E, Manual)._
 - [Strategy details]
