@@ -14,7 +14,9 @@ artifacts:
     instruction: |
       ## Main Agent Instructions
       Read the context and original ticket to understand what is being asked.
-      DO NOT immediately ask questions. Instead, write instructions for the subagent to blindly browse the codebase to map relevant files and context into `.alignment/question-research.md`. This will help you ask targeted questions later.
+      If the context is ambiguous, you may first ask the user brief clarifying questions in chat about the broad business goals. If the context is clear enough, skip asking questions.
+      
+      Once you have sufficient context, write instructions for the subagent to blindly browse the codebase to map relevant files and formulate deep technical questions into `.alignment/question-research.md`.
 
       CRITICAL: You MUST replace `{ARTIFACT_ID}` and `{CHANGE_NAME}` placeholders with actual string values from your execution context. Since the next subagent starts empty, it absolutely needs full, literal paths to find files without guessing. Do not leave literal `{}` braces behind.
       
@@ -60,11 +62,10 @@ artifacts:
 
       Before writing, read all completed dependency artifacts listed in this artifact's `requires` to gather context.
 
-      Read the context, original ticket, and `.alignment/question-research.md`.
-      DO NOT immediately write `questions.md`. First, ask your clarifying questions to the user in this chat.
-      Work back and forth in conversation with the user to clarify requirements.
+      Read the context, original ticket, and `.alignment/question-research.md`. The Subagent has formulated detailed, codebase-specific technical questions inside this document.
+      DO NOT immediately write `questions.md`. First, present these technical questions to the user in this chat and work back and forth to resolve them.
       
-      ONLY ONCE the Q&A is resolved and you have enough clarity, write the final summary and answers into `questions.md`.
+      ONLY ONCE the Subagent's technical questions are answered and resolved, formalize the final summary and objective research directives into `questions.md`.
       
       ## REQUIRED: Context Drop
       After creating `questions.md`, you MUST perform a Context Drop to clear your session memory before research begins.
